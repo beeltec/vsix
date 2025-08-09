@@ -62,6 +62,8 @@ impl<E: ExtensionRepository, I: InstallationRepository> InstallExtensionUseCase<
 #[cfg(test)]
 mod tests {
     use super::*;
+    use async_trait::async_trait;
+    use crate::domain::Extension;
     
     struct MockExtensionRepo {
         search_result: Option<SearchResult>,
