@@ -1,6 +1,7 @@
 use clap::Parser;
 use vsix_install::application::ApplicationService;
 use vsix_install::presentation::{Cli, Commands, DisplayManager};
+use vsix_install::domain::{SortField, SearchResult};
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
@@ -9,10 +10,25 @@ async fn main() -> anyhow::Result<()> {
     let display = DisplayManager::new();
     
     match cli.command {
-        Commands::Search { query } => {
+        Commands::Search { query, sort, reverse, limit } => {
             match service.search_extensions(&query, cli.marketplace.as_deref()).await {
-                Ok(results) => {
-                    display.show_search_results(&results);
+                Ok(mut results) => {
+                    // Apply sorting
+                    if let Some(sort_field) = SortField::from_str(&sort) {
+                        sort_field.sort_extensions(&mut results.extensions, reverse);
+                    } else {
+                        display.show_error(&format!("Invalid sort field: {}. Use 'name', 'downloads', or 'publisher'", sort));
+                        std::process::exit(1);
+                    }
+                    
+                    // Apply limit
+                    results.extensions.truncate(limit);
+                    let limited_results = SearchResult {
+                        extensions: results.extensions,
+                        total_count: results.total_count,
+                    };
+                    
+                    display.show_search_results(&limited_results);
                 }
                 Err(e) => {
                     display.show_error(&format!("Search failed: {}", e));

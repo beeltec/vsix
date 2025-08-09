@@ -17,6 +17,15 @@ pub enum Commands {
     Search {
         #[arg(help = "Search query")]
         query: String,
+        
+        #[arg(short, long, help = "Sort results by field (name, downloads, publisher)", default_value = "downloads")]
+        sort: String,
+        
+        #[arg(short, long, help = "Reverse sort order")]
+        reverse: bool,
+        
+        #[arg(short, long, help = "Limit number of results", default_value = "20")]
+        limit: usize,
     },
     
     #[command(about = "Install an extension")]

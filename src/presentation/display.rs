@@ -1,4 +1,4 @@
-use comfy_table::{Table, modifiers::UTF8_ROUND_CORNERS, presets::UTF8_FULL};
+use comfy_table::{Table, modifiers::UTF8_ROUND_CORNERS, presets::UTF8_FULL, ContentArrangement};
 use colored::Colorize;
 use indicatif::{ProgressBar, ProgressStyle};
 use crate::domain::SearchResult;
@@ -20,9 +20,12 @@ impl DisplayManager {
         table
             .load_preset(UTF8_FULL)
             .apply_modifier(UTF8_ROUND_CORNERS)
+            .set_content_arrangement(ContentArrangement::Dynamic)
+            .set_width(120)
             .set_header(vec![
                 "Name".bold().to_string(),
                 "Downloads".bold().to_string(),
+                "Publisher".bold().to_string(),
                 "ID".bold().to_string(),
             ]);
         
@@ -30,6 +33,7 @@ impl DisplayManager {
             table.add_row(vec![
                 ext.display_name.clone(),
                 format_downloads(ext.downloads),
+                ext.publisher.clone(),
                 ext.unique_identifier(),
             ]);
         }

@@ -62,3 +62,30 @@ fn test_install_help() {
         .success()
         .stdout(predicate::str::contains("Install an extension"));
 }
+
+#[test]
+fn test_search_with_sort_option() {
+    let mut cmd = Command::cargo_bin("vsix-install").unwrap();
+    cmd.args(&["search", "--help"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("Sort results by field"));
+}
+
+#[test]
+fn test_search_with_limit_option() {
+    let mut cmd = Command::cargo_bin("vsix-install").unwrap();
+    cmd.args(&["search", "--help"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("Limit number of results"));
+}
+
+#[test]
+fn test_search_with_reverse_option() {
+    let mut cmd = Command::cargo_bin("vsix-install").unwrap();
+    cmd.args(&["search", "--help"])
+        .assert()
+        .success()
+        .stdout(predicate::str::contains("Reverse sort order"));
+}
