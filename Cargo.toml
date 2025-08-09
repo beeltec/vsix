@@ -1,11 +1,11 @@
 [package]
 name = "vsix-install"
-version = "0.1.0"
-edition = "2021"
-authors = ["Your Name <your.email@example.com>"]
+version = "1.0.0"
+edition = "2024"
+authors = ["Christian Beelte <cb@beelte.com>"]
 description = "A command-line utility that downloads and installs .vsix extensions into Visual Studio Code and Cursor"
 license = "MIT"
-repository = "https://github.com/yourusername/vsix-install"
+repository = "https://github.com/beeltec/vsix-install"
 keywords = ["vscode", "extensions", "vsix", "marketplace", "cli", "cursor"]
 categories = ["command-line-utilities", "development-tools"]
 
