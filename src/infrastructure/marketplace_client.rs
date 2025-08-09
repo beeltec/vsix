@@ -10,7 +10,9 @@ pub struct MarketplaceClient {
 impl MarketplaceClient {
     pub fn new() -> Self {
         Self {
-            client: Client::new(),
+            client: Client::builder()
+                .build()
+                .expect("Failed to build HTTP client"),
         }
     }
 }

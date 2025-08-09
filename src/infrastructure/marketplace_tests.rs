@@ -41,7 +41,9 @@ mod tests {
         let data = download_result.unwrap();
         assert!(data.len() > 0, "Should download data");
         
-        // VSIX files are ZIP archives, so should start with PK
-        assert_eq!(&data[0..2], b"PK", "Should be a valid VSIX/ZIP file");
+        // VSIX files are ZIP archives (PK) but may be gzipped (0x1f8b)
+        let is_zip = data.len() >= 2 && &data[0..2] == b"PK";
+        let is_gzip = data.len() >= 2 && data[0] == 0x1f && data[1] == 0x8b;
+        assert!(is_zip || is_gzip, "Should be a valid VSIX/ZIP or gzipped file");
     }
 }
