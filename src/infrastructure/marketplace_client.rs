@@ -86,10 +86,23 @@ impl ExtensionRepository for MarketplaceClient {
             return Err(DomainError::NetworkError(format!("HTTP {}", response.status())));
         }
         
-        response.bytes()
+        let bytes = response.bytes()
             .await
-            .map(|b| b.to_vec())
-            .map_err(|e| DomainError::NetworkError(e.to_string()))
+            .map_err(|e| DomainError::NetworkError(e.to_string()))?;
+        
+        // Check if the response is gzipped and decompress if needed
+        let data = if bytes.len() >= 2 && bytes[0] == 0x1f && bytes[1] == 0x8b {
+            use std::io::Read;
+            let mut decoder = flate2::read::GzDecoder::new(&bytes[..]);
+            let mut decompressed = Vec::new();
+            decoder.read_to_end(&mut decompressed)
+                .map_err(|e| DomainError::NetworkError(format!("Failed to decompress: {}", e)))?;
+            decompressed
+        } else {
+            bytes.to_vec()
+        };
+        
+        Ok(data)
     }
 }
 

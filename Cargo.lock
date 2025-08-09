@@ -2175,6 +2175,7 @@ dependencies = [
  "colored 2.2.0",
  "comfy-table",
  "dirs",
+ "flate2",
  "indicatif",
  "mockito",
  "predicates",

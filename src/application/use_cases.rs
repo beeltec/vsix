@@ -1,4 +1,4 @@
-use crate::domain::{SearchResult, DomainError, ExtensionRepository, InstallationRepository, Architecture};
+use crate::domain::{SearchResult, DomainError, ExtensionRepository, InstallationRepository};
 
 pub struct SearchExtensionUseCase<R: ExtensionRepository> {
     repository: R,
@@ -46,10 +46,9 @@ impl<E: ExtensionRepository, I: InstallationRepository> InstallExtensionUseCase<
         
         let extension = self.extension_repo.get_extension(extension_id, marketplace_url).await?;
         
-        let architecture = Architecture::detect();
-        let platform = architecture.to_platform_string();
-        
-        let vsix_data = self.extension_repo.download(&extension, platform).await?;
+        // Most extensions are platform-agnostic, so we don't specify a platform
+        // Some extensions support platform-specific downloads, but the API returns 500 for those that don't
+        let vsix_data = self.extension_repo.download(&extension, None).await?;
         
         if use_cursor {
             self.installation_repo.install_cursor(&vsix_data, &extension.unique_identifier()).await
