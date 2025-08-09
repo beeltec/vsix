@@ -1,4 +1,4 @@
-# vsix-install
+# vsix
 
 A command-line tool to download and install VSCode extensions from the marketplace.
 
@@ -16,34 +16,43 @@ A command-line tool to download and install VSCode extensions from the marketpla
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/vsix-install.git
-cd vsix-install
+git clone https://github.com/yourusername/vsix.git
+cd vsix
 
 # Build the project
 cargo build --release
 
-# The binary will be available at ./target/release/vsix-install
+# The binary will be available at ./target/release/vsix
 ```
 
 ## Usage
 
 ### Search for extensions
 ```bash
-vsix-install search python
+vsix search python
+
+# Sort by name
+vsix search rust --sort name
+
+# Limit results
+vsix search python --limit 10
+
+# Reverse sort order
+vsix search vscode --sort downloads --reverse
 ```
 
 ### Install an extension
 ```bash
 # Install to VSCode (default)
-vsix-install install ms-python.python
+vsix install ms-python.python
 
 # Install to Cursor
-vsix-install install ms-python.python --cursor
+vsix install ms-python.python --cursor
 ```
 
 ### Use custom marketplace
 ```bash
-vsix-install --marketplace https://custom.marketplace.com search rust
+vsix --marketplace https://custom.marketplace.com search rust
 ```
 
 ## Development

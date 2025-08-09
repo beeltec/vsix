@@ -3,7 +3,7 @@ use predicates::prelude::*;
 
 #[test]
 fn test_cli_without_args() {
-    let mut cmd = Command::cargo_bin("vsix-install").unwrap();
+    let mut cmd = Command::cargo_bin("vsix").unwrap();
     cmd.assert()
         .failure()
         .stderr(predicate::str::contains("Usage"));
@@ -11,7 +11,7 @@ fn test_cli_without_args() {
 
 #[test]
 fn test_search_command_without_query() {
-    let mut cmd = Command::cargo_bin("vsix-install").unwrap();
+    let mut cmd = Command::cargo_bin("vsix").unwrap();
     cmd.arg("search")
         .assert()
         .failure()
@@ -20,7 +20,7 @@ fn test_search_command_without_query() {
 
 #[test]
 fn test_install_command_without_id() {
-    let mut cmd = Command::cargo_bin("vsix-install").unwrap();
+    let mut cmd = Command::cargo_bin("vsix").unwrap();
     cmd.arg("install")
         .assert()
         .failure()
@@ -29,7 +29,7 @@ fn test_install_command_without_id() {
 
 #[test]
 fn test_help_command() {
-    let mut cmd = Command::cargo_bin("vsix-install").unwrap();
+    let mut cmd = Command::cargo_bin("vsix").unwrap();
     cmd.arg("--help")
         .assert()
         .success()
@@ -38,16 +38,16 @@ fn test_help_command() {
 
 #[test]
 fn test_version_command() {
-    let mut cmd = Command::cargo_bin("vsix-install").unwrap();
+    let mut cmd = Command::cargo_bin("vsix").unwrap();
     cmd.arg("--version")
         .assert()
         .success()
-        .stdout(predicate::str::contains("vsix-install"));
+        .stdout(predicate::str::contains("vsix"));
 }
 
 #[test]
 fn test_search_help() {
-    let mut cmd = Command::cargo_bin("vsix-install").unwrap();
+    let mut cmd = Command::cargo_bin("vsix").unwrap();
     cmd.args(&["search", "--help"])
         .assert()
         .success()
@@ -56,7 +56,7 @@ fn test_search_help() {
 
 #[test]
 fn test_install_help() {
-    let mut cmd = Command::cargo_bin("vsix-install").unwrap();
+    let mut cmd = Command::cargo_bin("vsix").unwrap();
     cmd.args(&["install", "--help"])
         .assert()
         .success()
@@ -65,7 +65,7 @@ fn test_install_help() {
 
 #[test]
 fn test_search_with_sort_option() {
-    let mut cmd = Command::cargo_bin("vsix-install").unwrap();
+    let mut cmd = Command::cargo_bin("vsix").unwrap();
     cmd.args(&["search", "--help"])
         .assert()
         .success()
@@ -74,7 +74,7 @@ fn test_search_with_sort_option() {
 
 #[test]
 fn test_search_with_limit_option() {
-    let mut cmd = Command::cargo_bin("vsix-install").unwrap();
+    let mut cmd = Command::cargo_bin("vsix").unwrap();
     cmd.args(&["search", "--help"])
         .assert()
         .success()
@@ -83,7 +83,7 @@ fn test_search_with_limit_option() {
 
 #[test]
 fn test_search_with_reverse_option() {
-    let mut cmd = Command::cargo_bin("vsix-install").unwrap();
+    let mut cmd = Command::cargo_bin("vsix").unwrap();
     cmd.args(&["search", "--help"])
         .assert()
         .success()

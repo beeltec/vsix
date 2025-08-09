@@ -1,7 +1,7 @@
 use clap::Parser;
-use vsix_install::application::ApplicationService;
-use vsix_install::presentation::{Cli, Commands, DisplayManager};
-use vsix_install::domain::{SortField, SearchResult};
+use vsix::application::ApplicationService;
+use vsix::presentation::{Cli, Commands, DisplayManager};
+use vsix::domain::{SortField, SearchResult};
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {

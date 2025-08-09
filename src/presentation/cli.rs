@@ -1,7 +1,7 @@
 use clap::{Parser, Subcommand};
 
 #[derive(Parser)]
-#[command(name = "vsix-install")]
+#[command(name = "vsix")]
 #[command(author, version, about = "Downloads and installs .vsix extensions into Visual Studio Code and Cursor", long_about = None)]
 pub struct Cli {
     #[command(subcommand)]
