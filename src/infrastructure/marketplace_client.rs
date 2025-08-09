@@ -19,7 +19,7 @@ impl MarketplaceClient {
 impl ExtensionRepository for MarketplaceClient {
     async fn search(&self, query: &str, marketplace_url: Option<&str>) -> Result<SearchResult, DomainError> {
         let base_url = marketplace_url.unwrap_or("https://marketplace.visualstudio.com");
-        let url = format!("{}/api/search/query", base_url);
+        let url = format!("{}/_apis/public/gallery/extensionquery", base_url);
         
         let request_body = json!({
             "filters": [{
@@ -41,7 +41,7 @@ impl ExtensionRepository for MarketplaceClient {
         let response = self.client
             .post(&url)
             .header("Content-Type", "application/json")
-            .header("Accept", "application/json;api-version=3.0-preview.1")
+            .header("Accept", "application/json;api-version=7.2-preview.1")
             .json(&request_body)
             .send()
             .await
