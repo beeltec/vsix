@@ -1,7 +1,6 @@
 use async_trait::async_trait;
 use std::fs;
 use std::path::{Path, PathBuf};
-use std::io::Write;
 use zip::ZipArchive;
 use crate::domain::{DomainError, InstallationRepository};
 

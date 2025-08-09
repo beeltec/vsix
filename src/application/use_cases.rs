@@ -1,5 +1,4 @@
-use async_trait::async_trait;
-use crate::domain::{Extension, SearchResult, DomainError, ExtensionRepository, InstallationRepository, Architecture};
+use crate::domain::{SearchResult, DomainError, ExtensionRepository, InstallationRepository, Architecture};
 
 pub struct SearchExtensionUseCase<R: ExtensionRepository> {
     repository: R,
