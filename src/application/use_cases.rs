@@ -62,7 +62,6 @@ impl<E: ExtensionRepository, I: InstallationRepository> InstallExtensionUseCase<
 #[cfg(test)]
 mod tests {
     use super::*;
-    use mockito;
     
     struct MockExtensionRepo {
         search_result: Option<SearchResult>,

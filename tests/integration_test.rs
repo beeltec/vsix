@@ -1,6 +1,5 @@
 use assert_cmd::Command;
 use predicates::prelude::*;
-use tempfile::TempDir;
 
 #[test]
 fn test_cli_without_args() {
