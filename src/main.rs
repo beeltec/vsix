@@ -14,7 +14,7 @@ async fn main() -> anyhow::Result<()> {
             match service.search_extensions(&query, cli.marketplace.as_deref()).await {
                 Ok(mut results) => {
                     // Apply sorting
-                    if let Some(sort_field) = SortField::from_str(&sort) {
+                    if let Ok(sort_field) = sort.parse::<SortField>() {
                         sort_field.sort_extensions(&mut results.extensions, reverse);
                     } else {
                         display.show_error(&format!("Invalid sort field: {}. Use 'name', 'downloads', or 'publisher'", sort));

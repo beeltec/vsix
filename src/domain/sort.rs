@@ -1,4 +1,5 @@
 use super::Extension;
+use std::str::FromStr;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum SortField {
@@ -7,17 +8,22 @@ pub enum SortField {
     Publisher,
 }
 
-impl SortField {
-    pub fn from_str(s: &str) -> Option<Self> {
+impl FromStr for SortField {
+    type Err = String;
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
         match s.to_lowercase().as_str() {
-            "name" => Some(SortField::Name),
-            "downloads" => Some(SortField::Downloads),
-            "publisher" => Some(SortField::Publisher),
-            _ => None,
+            "name" => Ok(SortField::Name),
+            "downloads" => Ok(SortField::Downloads),
+            "publisher" => Ok(SortField::Publisher),
+            _ => Err(format!("Invalid sort field: {}", s)),
         }
     }
+}
+
+impl SortField
     
-    pub fn sort_extensions(&self, extensions: &mut Vec<Extension>, reverse: bool) {
+    pub fn sort_extensions(&self, extensions: &mut [Extension], reverse: bool) {
         extensions.sort_by(|a, b| {
             let ordering = match self {
                 SortField::Name => a.display_name.to_lowercase().cmp(&b.display_name.to_lowercase()),
@@ -40,11 +46,11 @@ mod tests {
     
     #[test]
     fn test_sort_field_from_str() {
-        assert_eq!(SortField::from_str("name"), Some(SortField::Name));
-        assert_eq!(SortField::from_str("NAME"), Some(SortField::Name));
-        assert_eq!(SortField::from_str("downloads"), Some(SortField::Downloads));
-        assert_eq!(SortField::from_str("publisher"), Some(SortField::Publisher));
-        assert_eq!(SortField::from_str("invalid"), None);
+        assert_eq!(SortField::from_str("name"), Ok(SortField::Name));
+        assert_eq!(SortField::from_str("NAME"), Ok(SortField::Name));
+        assert_eq!(SortField::from_str("downloads"), Ok(SortField::Downloads));
+        assert_eq!(SortField::from_str("publisher"), Ok(SortField::Publisher));
+        assert!(SortField::from_str("invalid").is_err());
     }
     
     #[test]
