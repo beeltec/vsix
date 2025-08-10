@@ -71,13 +71,7 @@ impl InstallationRepository for FileSystemRepository {
         let home = dirs::home_dir()
             .ok_or_else(|| DomainError::DirectoryNotFound("Home directory not found".to_string()))?;
         
-        let extensions_dir = if cfg!(target_os = "windows") {
-            home.join(".vscode").join("extensions")
-        } else if cfg!(target_os = "macos") {
-            home.join(".vscode").join("extensions")
-        } else {
-            home.join(".vscode").join("extensions")
-        };
+        let extensions_dir = home.join(".vscode").join("extensions");
         
         if !extensions_dir.exists() {
             fs::create_dir_all(&extensions_dir)?;
