@@ -21,8 +21,7 @@ impl FromStr for SortField {
     }
 }
 
-impl SortField
-    
+impl SortField {
     pub fn sort_extensions(&self, extensions: &mut [Extension], reverse: bool) {
         extensions.sort_by(|a, b| {
             let ordering = match self {
