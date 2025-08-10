@@ -33,7 +33,9 @@ fn test_help_command() {
     cmd.arg("--help")
         .assert()
         .success()
-        .stdout(predicate::str::contains("Downloads and installs .vsix extensions"));
+        .stdout(predicate::str::contains(
+            "Downloads and installs .vsix extensions",
+        ));
 }
 
 #[test]

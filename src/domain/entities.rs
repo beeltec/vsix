@@ -12,18 +12,20 @@ pub struct Extension {
 }
 
 impl Extension {
+    #[must_use]
     pub fn unique_identifier(&self) -> String {
         format!("{}.{}", self.publisher, self.name)
     }
-    
+
+    #[must_use]
     pub fn download_url(&self, target_platform: Option<&str>) -> String {
         let base_url = format!(
             "https://marketplace.visualstudio.com/_apis/public/gallery/publishers/{}/vsextensions/{}/{}/vspackage",
             self.publisher, self.name, self.version
         );
-        
+
         match target_platform {
-            Some(platform) => format!("{}?targetPlatform={}", base_url, platform),
+            Some(platform) => format!("{base_url}?targetPlatform={platform}"),
             None => base_url,
         }
     }
@@ -50,10 +52,10 @@ mod tests {
             description: Some("Python language support".to_string()),
             downloads: 1000,
         };
-        
+
         assert_eq!(ext.unique_identifier(), "ms-python.python");
     }
-    
+
     #[test]
     fn test_extension_download_url_with_platform() {
         let ext = Extension {
@@ -65,14 +67,14 @@ mod tests {
             description: None,
             downloads: 1000,
         };
-        
+
         let url = ext.download_url(Some("win32-x64"));
         assert_eq!(
             url,
             "https://marketplace.visualstudio.com/_apis/public/gallery/publishers/ms-python/vsextensions/python/2024.17.2024100401/vspackage?targetPlatform=win32-x64"
         );
     }
-    
+
     #[test]
     fn test_extension_download_url_without_platform() {
         let ext = Extension {
@@ -84,7 +86,7 @@ mod tests {
             description: None,
             downloads: 1000,
         };
-        
+
         let url = ext.download_url(None);
         assert_eq!(
             url,

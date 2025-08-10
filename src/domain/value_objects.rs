@@ -15,10 +15,11 @@ pub enum Architecture {
 }
 
 impl Architecture {
+    #[must_use]
     pub fn detect() -> Self {
         let os = std::env::consts::OS;
         let arch = std::env::consts::ARCH;
-        
+
         match (os, arch) {
             ("windows", "x86_64") => Architecture::Win32X64,
             ("windows", "aarch64") => Architecture::Win32Arm64,
@@ -30,7 +31,8 @@ impl Architecture {
             _ => Architecture::Universal,
         }
     }
-    
+
+    #[must_use]
     pub fn to_platform_string(&self) -> Option<&str> {
         match self {
             Architecture::Win32X64 => Some("win32-x64"),
@@ -59,9 +61,18 @@ mod tests {
 
     #[test]
     fn test_architecture_to_platform_string() {
-        assert_eq!(Architecture::Win32X64.to_platform_string(), Some("win32-x64"));
-        assert_eq!(Architecture::DarwinArm64.to_platform_string(), Some("darwin-arm64"));
-        assert_eq!(Architecture::LinuxX64.to_platform_string(), Some("linux-x64"));
+        assert_eq!(
+            Architecture::Win32X64.to_platform_string(),
+            Some("win32-x64")
+        );
+        assert_eq!(
+            Architecture::DarwinArm64.to_platform_string(),
+            Some("darwin-arm64")
+        );
+        assert_eq!(
+            Architecture::LinuxX64.to_platform_string(),
+            Some("linux-x64")
+        );
         assert_eq!(Architecture::Universal.to_platform_string(), None);
     }
 
