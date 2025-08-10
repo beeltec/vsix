@@ -29,6 +29,34 @@ impl ApplicationService {
         let use_case = InstallExtensionUseCase::new(&self.marketplace_client, &self.file_system_repo);
         use_case.execute(extension_id, use_cursor, marketplace_url).await
     }
+
+    pub async fn download_extension(
+        &self,
+        extension_id: &str,
+        output_dir: &str,
+        marketplace_url: Option<&str>,
+    ) -> Result<std::path::PathBuf, DomainError> {
+        use std::fs;
+        use std::path::Path;
+
+        let extension = self
+            .marketplace_client
+            .get_extension(extension_id, marketplace_url)
+            .await?;
+        let vsix_data = self.marketplace_client.download(&extension, None).await?;
+
+        let output_path = Path::new(output_dir);
+        if !output_path.exists() {
+            fs::create_dir_all(output_path)?;
+        }
+
+        let file_name = format!("{}-{}.vsix", extension_id, extension.version);
+        let file_path = output_path.join(file_name);
+
+        fs::write(&file_path, vsix_data)?;
+
+        Ok(file_path)
+    }
 }
 
 impl ExtensionRepository for &MarketplaceClient {
