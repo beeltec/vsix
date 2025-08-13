@@ -195,6 +195,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
+        with:
+          ref: main
+          fetch-depth: 0
       
       - name: Download checksums
         run: |
@@ -227,4 +230,4 @@ jobs:
           git config --local user.name "GitHub Action"
           git add homebrew-formula/vsix.rb
           git commit -m "Update Homebrew formula for ${{ needs.create-release.outputs.version }}" || true
-          git push || true
+          git push origin main || true
