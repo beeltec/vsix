@@ -1,5 +1,11 @@
 # vsix
 
+[![Crates.io](https://img.shields.io/crates/v/vsix.svg)](https://crates.io/crates/vsix)
+[![Documentation](https://docs.rs/vsix/badge.svg)](https://docs.rs/vsix)
+[![License](https://img.shields.io/crates/l/vsix.svg)](https://github.com/beeltec/vsix/blob/main/LICENSE)
+[![Build Status](https://github.com/beeltec/vsix/workflows/Release/badge.svg)](https://github.com/beeltec/vsix/actions)
+[![Downloads](https://img.shields.io/crates/d/vsix.svg)](https://crates.io/crates/vsix)
+
 A command-line utility that downloads and installs .vsix extensions into Visual Studio Code and Cursor
 
 ## Features
@@ -12,11 +18,25 @@ A command-line utility that downloads and installs .vsix extensions into Visual 
 
 ## Installation
 
+### Homebrew (macOS and Linux)
+
+```bash
+# Coming soon - after first release
+brew tap beeltec/vsix
+brew install vsix
+```
+
+### Cargo
+
+```bash
+cargo install vsix
+```
+
 ### Build from source
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/vsix.git
+git clone https://github.com/beeltec/vsix.git
 cd vsix
 
 # Build the project
@@ -24,6 +44,13 @@ cargo build --release
 
 # The binary will be available at ./target/release/vsix
 ```
+
+### Download prebuilt binaries
+
+Prebuilt binaries are available from the [releases page](https://github.com/beeltec/vsix/releases) for:
+- macOS (Intel and Apple Silicon)
+- Linux (x86_64)
+- Windows (x86_64)
 
 ## Usage
 

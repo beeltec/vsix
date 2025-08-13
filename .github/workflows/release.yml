@@ -1,0 +1,102 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  create-release:
+    runs-on: ubuntu-latest
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+    steps:
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
+
+  build-and-upload:
+    needs: create-release
+    strategy:
+      matrix:
+        include:
+          - os: macos-latest
+            target: x86_64-apple-darwin
+            asset_name: vsix-x86_64-apple-darwin.tar.gz
+          - os: macos-latest
+            target: aarch64-apple-darwin
+            asset_name: vsix-aarch64-apple-darwin.tar.gz
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            asset_name: vsix-x86_64-unknown-linux-gnu.tar.gz
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            asset_name: vsix-x86_64-pc-windows-msvc.zip
+
+    runs-on: ${{ matrix.os }}
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          target: ${{ matrix.target }}
+          override: true
+      
+      - name: Build
+        run: cargo build --release --target ${{ matrix.target }}
+      
+      - name: Package (Unix)
+        if: matrix.os != 'windows-latest'
+        run: |
+          cd target/${{ matrix.target }}/release
+          tar czf ../../../${{ matrix.asset_name }} vsix
+          cd ../../..
+          echo "ASSET_PATH=${{ matrix.asset_name }}" >> $GITHUB_ENV
+      
+      - name: Package (Windows)
+        if: matrix.os == 'windows-latest'
+        run: |
+          cd target/${{ matrix.target }}/release
+          7z a ../../../${{ matrix.asset_name }} vsix.exe
+          cd ../../..
+          echo "ASSET_PATH=${{ matrix.asset_name }}" >> $env:GITHUB_ENV
+      
+      - name: Generate SHA256
+        if: matrix.os != 'windows-latest'
+        run: |
+          shasum -a 256 ${{ matrix.asset_name }} > ${{ matrix.asset_name }}.sha256
+          echo "SHA256=$(cat ${{ matrix.asset_name }}.sha256)" >> $GITHUB_ENV
+      
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: ${{ env.ASSET_PATH }}
+          asset_name: ${{ matrix.asset_name }}
+          asset_content_type: application/gzip
+      
+      - name: Upload SHA256
+        if: matrix.os != 'windows-latest'
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: ${{ matrix.asset_name }}.sha256
+          asset_name: ${{ matrix.asset_name }}.sha256
+          asset_content_type: text/plain
