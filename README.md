@@ -1,10 +1,6 @@
 # vsix
 
-[![Crates.io](https://img.shields.io/crates/v/vsix.svg)](https://crates.io/crates/vsix)
-[![Documentation](https://docs.rs/vsix/badge.svg)](https://docs.rs/vsix)
-[![License](https://img.shields.io/crates/l/vsix.svg)](https://github.com/beeltec/vsix/blob/main/LICENSE)
 [![Build Status](https://github.com/beeltec/vsix/workflows/Release/badge.svg)](https://github.com/beeltec/vsix/actions)
-[![Downloads](https://img.shields.io/crates/d/vsix.svg)](https://crates.io/crates/vsix)
 
 A command-line utility that downloads and installs .vsix extensions into Visual Studio Code and Cursor
 
