@@ -186,8 +186,8 @@ jobs:
         env:
           CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
         run: |
-          cargo publish --dry-run
-          cargo publish || true  # Allow failure if already published
+          cargo publish --dry-run --allow-dirty
+          cargo publish --allow-dirty || true  # Allow failure if already published
 
   update-homebrew:
     name: Update Homebrew Formula
