@@ -1,6 +1,6 @@
 # vsix
 
-A command-line tool to download and install VSCode extensions from the marketplace.
+A command-line utility that downloads and installs .vsix extensions into Visual Studio Code and Cursor
 
 ## Features
 
