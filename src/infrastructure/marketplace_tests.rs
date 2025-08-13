@@ -51,7 +51,7 @@ mod tests {
         assert!(download_result.is_ok(), "Download should succeed");
 
         let data = download_result.unwrap();
-        assert!(data.len() > 0, "Should download data");
+        assert!(!data.is_empty(), "Should download data");
 
         // VSIX files are ZIP archives (PK) but may be gzipped (0x1f8b)
         let is_zip = data.len() >= 2 && &data[0..2] == b"PK";

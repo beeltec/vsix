@@ -50,7 +50,7 @@ fn test_version_command() {
 #[test]
 fn test_search_help() {
     let mut cmd = Command::cargo_bin("vsix").unwrap();
-    cmd.args(&["search", "--help"])
+    cmd.args(["search", "--help"])
         .assert()
         .success()
         .stdout(predicate::str::contains("Search for extensions"));
@@ -59,7 +59,7 @@ fn test_search_help() {
 #[test]
 fn test_install_help() {
     let mut cmd = Command::cargo_bin("vsix").unwrap();
-    cmd.args(&["install", "--help"])
+    cmd.args(["install", "--help"])
         .assert()
         .success()
         .stdout(predicate::str::contains("Install an extension"));
@@ -68,7 +68,7 @@ fn test_install_help() {
 #[test]
 fn test_search_with_sort_option() {
     let mut cmd = Command::cargo_bin("vsix").unwrap();
-    cmd.args(&["search", "--help"])
+    cmd.args(["search", "--help"])
         .assert()
         .success()
         .stdout(predicate::str::contains("Sort results by field"));
@@ -77,7 +77,7 @@ fn test_search_with_sort_option() {
 #[test]
 fn test_search_with_limit_option() {
     let mut cmd = Command::cargo_bin("vsix").unwrap();
-    cmd.args(&["search", "--help"])
+    cmd.args(["search", "--help"])
         .assert()
         .success()
         .stdout(predicate::str::contains("Limit number of results"));
@@ -86,7 +86,7 @@ fn test_search_with_limit_option() {
 #[test]
 fn test_search_with_reverse_option() {
     let mut cmd = Command::cargo_bin("vsix").unwrap();
-    cmd.args(&["search", "--help"])
+    cmd.args(["search", "--help"])
         .assert()
         .success()
         .stdout(predicate::str::contains("Reverse sort order"));

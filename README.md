@@ -6,8 +6,8 @@ A command-line utility that downloads and installs .vsix extensions into Visual 
 
 ## Features
 
-- Search for extensions in the VSCode marketplace
-- Install extensions to VSCode or Cursor
+- Search for extensions in the Visual Studio Code marketplace
+- Install extensions to Visual Studio Code or Cursor
 - Automatic system architecture detection
 - Beautiful table display for search results
 - Support for custom marketplace URLs
@@ -82,7 +82,7 @@ vsix --marketplace https://custom.marketplace.com search rust
 
 ### Prerequisites
 
-- Rust 1.70 or higher
+- Rust 1.88 or higher
 - Cargo
 
 ### Running tests
