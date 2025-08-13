@@ -3,100 +3,221 @@ name: Release
 on:
   push:
     tags:
-      - 'v*'
+      - 'v[0-9]+.*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag (e.g., v1.0.0)'
+        required: true
+        type: string
 
 env:
   CARGO_TERM_COLOR: always
 
 jobs:
   create-release:
+    name: Create Release
     runs-on: ubuntu-latest
     outputs:
       upload_url: ${{ steps.create_release.outputs.upload_url }}
+      version: ${{ steps.get_version.outputs.version }}
     steps:
+      - uses: actions/checkout@v4
+      
+      - name: Get version
+        id: get_version
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            VERSION="${{ github.event.inputs.tag }}"
+          else
+            VERSION="${GITHUB_REF#refs/tags/}"
+          fi
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+      
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
+          tag_name: ${{ steps.get_version.outputs.version }}
+          release_name: Release ${{ steps.get_version.outputs.version }}
           draft: false
           prerelease: false
+          body: |
+            ## Installation
+            
+            ### Homebrew
+            ```bash
+            brew tap beeltec/vsix
+            brew install vsix
+            ```
+            
+            ### Cargo
+            ```bash
+            cargo install vsix
+            ```
+            
+            ### Direct Download
+            Download the appropriate binary for your platform from the assets below.
+            
+            ## Checksums
+            SHA256 checksums are provided for each binary.
 
-  build-and-upload:
+  build-binaries:
+    name: Build ${{ matrix.target }}
     needs: create-release
     strategy:
       matrix:
         include:
-          - os: macos-latest
-            target: x86_64-apple-darwin
-            asset_name: vsix-x86_64-apple-darwin.tar.gz
-          - os: macos-latest
-            target: aarch64-apple-darwin
-            asset_name: vsix-aarch64-apple-darwin.tar.gz
-          - os: ubuntu-latest
-            target: x86_64-unknown-linux-gnu
-            asset_name: vsix-x86_64-unknown-linux-gnu.tar.gz
-          - os: windows-latest
-            target: x86_64-pc-windows-msvc
-            asset_name: vsix-x86_64-pc-windows-msvc.zip
+          # macOS
+          - target: x86_64-apple-darwin
+            os: macos-latest
+            name: vsix-x86_64-apple-darwin.tar.gz
+          - target: aarch64-apple-darwin
+            os: macos-latest
+            name: vsix-aarch64-apple-darwin.tar.gz
+          
+          # Linux
+          - target: x86_64-unknown-linux-gnu
+            os: ubuntu-latest
+            name: vsix-x86_64-linux.tar.gz
+          - target: x86_64-unknown-linux-musl
+            os: ubuntu-latest
+            name: vsix-x86_64-linux-musl.tar.gz
+          - target: aarch64-unknown-linux-gnu
+            os: ubuntu-latest
+            name: vsix-aarch64-linux.tar.gz
+          
+          # Windows
+          - target: x86_64-pc-windows-msvc
+            os: windows-latest
+            name: vsix-x86_64-windows.zip
+          - target: aarch64-pc-windows-msvc
+            os: windows-latest
+            name: vsix-aarch64-windows.zip
 
     runs-on: ${{ matrix.os }}
-    
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       
       - name: Install Rust
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@stable
         with:
-          toolchain: stable
-          target: ${{ matrix.target }}
-          override: true
+          targets: ${{ matrix.target }}
+      
+      - name: Install cross-compilation tools
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          if [[ "${{ matrix.target }}" == "aarch64-unknown-linux-gnu" ]]; then
+            sudo apt-get install -y gcc-aarch64-linux-gnu
+          fi
+          if [[ "${{ matrix.target }}" == "x86_64-unknown-linux-musl" ]]; then
+            sudo apt-get install -y musl-tools
+          fi
       
       - name: Build
-        run: cargo build --release --target ${{ matrix.target }}
+        run: |
+          if [ "${{ matrix.os }}" = "ubuntu-latest" ]; then
+            cargo install cross --git https://github.com/cross-rs/cross
+            cross build --release --target ${{ matrix.target }}
+          else
+            cargo build --release --target ${{ matrix.target }}
+          fi
+        shell: bash
       
       - name: Package (Unix)
         if: matrix.os != 'windows-latest'
         run: |
           cd target/${{ matrix.target }}/release
-          tar czf ../../../${{ matrix.asset_name }} vsix
+          tar czf ../../../${{ matrix.name }} vsix
           cd ../../..
-          echo "ASSET_PATH=${{ matrix.asset_name }}" >> $GITHUB_ENV
+          shasum -a 256 ${{ matrix.name }} > ${{ matrix.name }}.sha256
       
       - name: Package (Windows)
         if: matrix.os == 'windows-latest'
+        shell: pwsh
         run: |
           cd target/${{ matrix.target }}/release
-          7z a ../../../${{ matrix.asset_name }} vsix.exe
+          Compress-Archive -Path vsix.exe -DestinationPath ../../../${{ matrix.name }}
           cd ../../..
-          echo "ASSET_PATH=${{ matrix.asset_name }}" >> $env:GITHUB_ENV
+          $hash = Get-FileHash ${{ matrix.name }} -Algorithm SHA256
+          "$($hash.Hash.ToLower())  ${{ matrix.name }}" | Out-File -FilePath "${{ matrix.name }}.sha256"
       
-      - name: Generate SHA256
-        if: matrix.os != 'windows-latest'
-        run: |
-          shasum -a 256 ${{ matrix.asset_name }} > ${{ matrix.asset_name }}.sha256
-          echo "SHA256=$(cat ${{ matrix.asset_name }}.sha256)" >> $GITHUB_ENV
-      
-      - name: Upload Release Asset
+      - name: Upload Binary
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.create-release.outputs.upload_url }}
-          asset_path: ${{ env.ASSET_PATH }}
-          asset_name: ${{ matrix.asset_name }}
-          asset_content_type: application/gzip
+          asset_path: ${{ matrix.name }}
+          asset_name: ${{ matrix.name }}
+          asset_content_type: application/octet-stream
       
-      - name: Upload SHA256
-        if: matrix.os != 'windows-latest'
+      - name: Upload Checksum
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.create-release.outputs.upload_url }}
-          asset_path: ${{ matrix.asset_name }}.sha256
-          asset_name: ${{ matrix.asset_name }}.sha256
+          asset_path: ${{ matrix.name }}.sha256
+          asset_name: ${{ matrix.name }}.sha256
           asset_content_type: text/plain
+
+  publish-crate:
+    name: Publish to crates.io
+    needs: [create-release, build-binaries]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+      
+      - name: Publish to crates.io
+        env:
+          CARGO_REGISTRY_TOKEN: ${{ secrets.CARGO_REGISTRY_TOKEN }}
+        run: |
+          cargo publish --dry-run
+          cargo publish || true  # Allow failure if already published
+
+  update-homebrew:
+    name: Update Homebrew Formula
+    needs: [create-release, build-binaries]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Download checksums
+        run: |
+          VERSION="${{ needs.create-release.outputs.version }}"
+          VERSION_NUM="${VERSION#v}"
+          
+          # Download SHA256 for each platform
+          curl -L -o darwin-x86.sha256 \
+            "https://github.com/${{ github.repository }}/releases/download/${VERSION}/vsix-x86_64-apple-darwin.tar.gz.sha256"
+          curl -L -o darwin-arm.sha256 \
+            "https://github.com/${{ github.repository }}/releases/download/${VERSION}/vsix-aarch64-apple-darwin.tar.gz.sha256"
+          curl -L -o linux.sha256 \
+            "https://github.com/${{ github.repository }}/releases/download/${VERSION}/vsix-x86_64-linux.tar.gz.sha256"
+          
+          # Extract SHA256 values
+          SHA_DARWIN_X86=$(cut -d' ' -f1 < darwin-x86.sha256)
+          SHA_DARWIN_ARM=$(cut -d' ' -f1 < darwin-arm.sha256)
+          SHA_LINUX=$(cut -d' ' -f1 < linux.sha256)
+          
+          # Update formula
+          sed -i "s/version \".*\"/version \"${VERSION_NUM}\"/" homebrew-formula/vsix.rb
+          sed -i "s|download/v[0-9.]*|download/${VERSION}|g" homebrew-formula/vsix.rb
+          sed -i "s/PLACEHOLDER_SHA256_X86_64/${SHA_DARWIN_X86}/" homebrew-formula/vsix.rb
+          sed -i "s/PLACEHOLDER_SHA256_ARM64/${SHA_DARWIN_ARM}/" homebrew-formula/vsix.rb
+          sed -i "s/PLACEHOLDER_SHA256_LINUX/${SHA_LINUX}/" homebrew-formula/vsix.rb
+      
+      - name: Commit formula update
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add homebrew-formula/vsix.rb
+          git commit -m "Update Homebrew formula for ${{ needs.create-release.outputs.version }}" || true
+          git push || true

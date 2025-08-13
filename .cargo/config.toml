@@ -1,0 +1,10 @@
+[build]
+# Optimize for small binary size
+rustflags = ["-C", "link-arg=-s"]
+
+[profile.release]
+opt-level = "z"     # Optimize for size
+lto = true          # Enable Link Time Optimization
+codegen-units = 1   # Reduce parallel codegen for better optimization
+panic = "abort"     # Smaller binary, no unwinding
+strip = true        # Strip symbols

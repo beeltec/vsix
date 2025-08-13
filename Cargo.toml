@@ -1,6 +1,6 @@
 [package]
 name = "vsix"
-version = "1.0.0"
+version = "1.0.1"
 edition = "2024"
 authors = ["Christian Beelte <cb@beelte.com>"]
 description = "A command-line utility that downloads and installs .vsix extensions into Visual Studio Code and Cursor"
