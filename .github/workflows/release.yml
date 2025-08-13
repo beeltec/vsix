@@ -224,10 +224,28 @@ jobs:
           sed -i "s/PLACEHOLDER_SHA256_ARM64/${SHA_DARWIN_ARM}/" homebrew-formula/vsix.rb
           sed -i "s/PLACEHOLDER_SHA256_LINUX/${SHA_LINUX}/" homebrew-formula/vsix.rb
       
-      - name: Commit formula update
+      - name: Commit formula update to vsix repo
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add homebrew-formula/vsix.rb
           git commit -m "Update Homebrew formula for ${{ needs.create-release.outputs.version }}" || true
           git push origin main || true
+      
+      - name: Push formula to homebrew-vsix tap
+        env:
+          TAP_GITHUB_TOKEN: ${{ secrets.TAP_GITHUB_TOKEN }}
+        run: |
+          # Clone the homebrew tap repository
+          git clone https://x-access-token:${TAP_GITHUB_TOKEN}@github.com/beeltec/homebrew-vsix.git homebrew-tap
+          
+          # Copy the updated formula
+          cp homebrew-formula/vsix.rb homebrew-tap/Formula/vsix.rb
+          
+          # Commit and push to the tap
+          cd homebrew-tap
+          git config user.email "action@github.com"
+          git config user.name "GitHub Action"
+          git add Formula/vsix.rb
+          git commit -m "Update vsix to ${{ needs.create-release.outputs.version }}" || true
+          git push || true
