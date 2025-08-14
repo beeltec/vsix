@@ -204,22 +204,42 @@ jobs:
           VERSION="${{ needs.create-release.outputs.version }}"
           VERSION_NUM="${VERSION#v}"
           
+          echo "Updating formula for version ${VERSION}..."
+          
           # Create temp directory for checksums
           mkdir -p temp-checksums
           cd temp-checksums
           
-          # Download SHA256 for each platform
-          curl -L -o darwin-x86.sha256 \
-            "https://github.com/${{ github.repository }}/releases/download/${VERSION}/vsix-x86_64-apple-darwin.tar.gz.sha256"
-          curl -L -o darwin-arm.sha256 \
-            "https://github.com/${{ github.repository }}/releases/download/${VERSION}/vsix-aarch64-apple-darwin.tar.gz.sha256"
-          curl -L -o linux-x86.sha256 \
-            "https://github.com/${{ github.repository }}/releases/download/${VERSION}/vsix-x86_64-linux.tar.gz.sha256"
+          # Download SHA256 for each platform with error checking
+          echo "Downloading checksums..."
+          
+          curl -L -f -o darwin-x86.sha256 \
+            "https://github.com/${{ github.repository }}/releases/download/${VERSION}/vsix-x86_64-apple-darwin.tar.gz.sha256" || {
+            echo "Failed to download macOS x86_64 checksum"
+            exit 1
+          }
+          
+          curl -L -f -o darwin-arm.sha256 \
+            "https://github.com/${{ github.repository }}/releases/download/${VERSION}/vsix-aarch64-apple-darwin.tar.gz.sha256" || {
+            echo "Failed to download macOS ARM64 checksum"
+            exit 1
+          }
+          
+          curl -L -f -o linux-x86.sha256 \
+            "https://github.com/${{ github.repository }}/releases/download/${VERSION}/vsix-x86_64-linux.tar.gz.sha256" || {
+            echo "Failed to download Linux x86_64 checksum"
+            exit 1
+          }
           
           # Extract SHA256 values
           SHA_DARWIN_X86=$(cut -d' ' -f1 < darwin-x86.sha256)
           SHA_DARWIN_ARM=$(cut -d' ' -f1 < darwin-arm.sha256)
           SHA_LINUX_X86=$(cut -d' ' -f1 < linux-x86.sha256)
+          
+          echo "SHA256 checksums:"
+          echo "  macOS x86_64: ${SHA_DARWIN_X86}"
+          echo "  macOS ARM64:  ${SHA_DARWIN_ARM}"
+          echo "  Linux x86_64: ${SHA_LINUX_X86}"
           
           cd ..
           
@@ -248,6 +268,29 @@ jobs:
             git push origin main
           fi
       
+      - name: Verify formula update
+        run: |
+          VERSION="${{ needs.create-release.outputs.version }}"
+          VERSION_NUM="${VERSION#v}"
+          
+          echo "Checking formula for version ${VERSION_NUM}..."
+          
+          if grep -q "version \"${VERSION_NUM}\"" homebrew-formula/vsix.rb; then
+            echo "✓ Formula version updated correctly"
+          else
+            echo "✗ Formula version not updated!"
+            echo "Current formula content:"
+            head -20 homebrew-formula/vsix.rb
+            exit 1
+          fi
+          
+          if grep -q "download/${VERSION}" homebrew-formula/vsix.rb; then
+            echo "✓ Download URLs updated correctly"
+          else
+            echo "✗ Download URLs not updated!"
+            exit 1
+          fi
+      
       - name: Push formula to homebrew-vsix tap
         env:
           TAP_GITHUB_TOKEN: ${{ secrets.TAP_GITHUB_TOKEN }}
@@ -262,6 +305,14 @@ jobs:
           cd homebrew-tap
           git config user.email "action@github.com"
           git config user.name "GitHub Action"
-          git add Formula/vsix.rb
-          git commit -m "Update vsix to ${{ needs.create-release.outputs.version }}" || true
-          git push || true
+          
+          # Check if there are changes
+          if git diff --quiet Formula/vsix.rb; then
+            echo "No changes to push to tap repository"
+            echo "This might indicate the formula wasn't properly updated in the previous step"
+          else
+            git add Formula/vsix.rb
+            git commit -m "Update vsix to ${{ needs.create-release.outputs.version }}"
+            git push
+            echo "Successfully pushed formula update to tap repository"
+          fi
