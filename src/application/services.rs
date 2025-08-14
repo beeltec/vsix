@@ -5,6 +5,32 @@ use crate::infrastructure::{
     FileSystemRepository, MarketplaceClient, SystemInstallationDetector, SystemInstallationExecutor,
 };
 
+/// Main application service that provides high-level operations for extension management.
+/// 
+/// This service acts as a facade to the application's use cases, coordinating between
+/// the domain layer and infrastructure services.
+/// 
+/// # Examples
+/// 
+/// ```no_run
+/// use vsix::application::ApplicationService;
+/// 
+/// #[tokio::main]
+/// async fn main() -> Result<(), Box<dyn std::error::Error>> {
+///     let service = ApplicationService::new();
+///     
+///     // Search for Python extensions
+///     let results = service.search_extensions("python", None).await?;
+///     
+///     // Install the Python extension to VSCode
+///     service.install_extension("ms-python.python", false, None).await?;
+///     
+///     // Install an extension to Cursor instead
+///     service.install_extension("rust-lang.rust-analyzer", true, None).await?;
+///     
+///     Ok(())
+/// }
+/// ```
 pub struct ApplicationService {
     marketplace_client: MarketplaceClient,
     file_system_repo: FileSystemRepository,
@@ -19,6 +45,21 @@ impl Default for ApplicationService {
 }
 
 impl ApplicationService {
+    /// Creates a new instance of the ApplicationService with default configurations.
+    /// 
+    /// This constructor initializes all necessary infrastructure components:
+    /// - Marketplace client for searching and downloading extensions
+    /// - File system repository for direct installation
+    /// - Installation detector for finding CLI tools
+    /// - Installation executor for running CLI commands
+    /// 
+    /// # Examples
+    /// 
+    /// ```no_run
+    /// use vsix::application::ApplicationService;
+    /// 
+    /// let service = ApplicationService::new();
+    /// ```
     #[must_use]
     pub fn new() -> Self {
         Self {
@@ -29,11 +70,39 @@ impl ApplicationService {
         }
     }
 
-    /// Searches for extensions in the marketplace
+    /// Searches for extensions in the marketplace.
     ///
+    /// # Arguments
+    /// 
+    /// * `query` - The search query string (e.g., "python", "rust", "vim")
+    /// * `marketplace_url` - Optional custom marketplace URL (defaults to VSCode marketplace)
+    /// 
+    /// # Returns
+    /// 
+    /// Returns a `SearchResult` containing matching extensions and total count.
+    /// 
     /// # Errors
     ///
-    /// Returns an error if the query is empty or if the search fails
+    /// Returns a `DomainError` if:
+    /// - The query is empty
+    /// - Network request fails
+    /// - Marketplace returns invalid data
+    /// 
+    /// # Examples
+    /// 
+    /// ```no_run
+    /// # use vsix::application::ApplicationService;
+    /// # #[tokio::main]
+    /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    /// let service = ApplicationService::new();
+    /// let results = service.search_extensions("rust", None).await?;
+    /// 
+    /// for extension in &results.extensions {
+    ///     println!("{} by {}", extension.display_name, extension.publisher);
+    /// }
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn search_extensions(
         &self,
         query: &str,
@@ -43,11 +112,25 @@ impl ApplicationService {
         use_case.execute(query, marketplace_url).await
     }
 
-    /// Installs an extension using the legacy method (direct filesystem)
+    /// Installs an extension using the legacy method (direct filesystem extraction).
+    /// 
+    /// This method bypasses CLI tools and directly extracts the VSIX archive to the
+    /// extensions directory. Consider using `install_extension` instead for better
+    /// compatibility with CLI tools.
+    /// 
+    /// # Arguments
+    /// 
+    /// * `extension_id` - The extension ID in format "publisher.name"
+    /// * `use_cursor` - If `true`, installs to Cursor; if `false`, installs to VSCode
+    /// * `marketplace_url` - Optional custom marketplace URL
     ///
     /// # Errors
     ///
-    /// Returns an error if the extension ID is invalid, extension not found, or installation fails
+    /// Returns a `DomainError` if:
+    /// - Extension ID format is invalid
+    /// - Extension is not found in the marketplace
+    /// - Installation directory cannot be accessed
+    /// - VSIX extraction fails
     pub async fn install_extension_legacy(
         &self,
         extension_id: &str,
@@ -61,11 +144,47 @@ impl ApplicationService {
             .await
     }
 
-    /// Installs an extension using the improved method (CLI when available)
+    /// Installs an extension using automatic method detection.
+    /// 
+    /// This method automatically detects if `code` or `cursor` CLI commands are available
+    /// in the system PATH and uses them for installation. If CLI tools are not available,
+    /// it falls back to direct filesystem extraction.
     ///
+    /// # Arguments
+    /// 
+    /// * `extension_id` - The extension ID in format "publisher.name" (e.g., "ms-python.python")
+    /// * `use_cursor` - If `true`, installs to Cursor; if `false`, installs to VSCode
+    /// * `marketplace_url` - Optional custom marketplace URL
+    /// 
+    /// # Installation Methods
+    /// 
+    /// 1. **CLI Installation** (preferred): Uses `code --install-extension` or `cursor --install-extension`
+    /// 2. **Filesystem Installation** (fallback): Extracts VSIX directly to extensions directory
+    /// 
     /// # Errors
     ///
-    /// Returns an error if the extension ID is invalid, extension not found, or installation fails
+    /// Returns a `DomainError` if:
+    /// - Extension ID format is invalid (must be "publisher.name")
+    /// - Extension is not found in the marketplace
+    /// - Download fails
+    /// - Installation fails
+    /// 
+    /// # Examples
+    /// 
+    /// ```no_run
+    /// # use vsix::application::ApplicationService;
+    /// # #[tokio::main]
+    /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    /// let service = ApplicationService::new();
+    /// 
+    /// // Install to VSCode
+    /// service.install_extension("rust-lang.rust-analyzer", false, None).await?;
+    /// 
+    /// // Install to Cursor
+    /// service.install_extension("ms-python.python", true, None).await?;
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn install_extension(
         &self,
         extension_id: &str,
@@ -82,11 +201,45 @@ impl ApplicationService {
             .await
     }
 
-    /// Downloads an extension to a file
-    ///
+    /// Downloads an extension as a VSIX file to the specified directory.
+    /// 
+    /// This method downloads the extension package without installing it, useful for:
+    /// - Offline installation
+    /// - Archiving extensions
+    /// - Manual distribution
+    /// 
+    /// # Arguments
+    /// 
+    /// * `extension_id` - The extension ID in format "publisher.name"
+    /// * `output_dir` - Directory path where the VSIX file will be saved
+    /// * `marketplace_url` - Optional custom marketplace URL
+    /// 
+    /// # Returns
+    /// 
+    /// Returns the full path to the downloaded VSIX file.
+    /// 
     /// # Errors
     ///
-    /// Returns an error if the extension is not found or download fails
+    /// Returns a `DomainError` if:
+    /// - Extension is not found in the marketplace
+    /// - Download fails due to network issues
+    /// - Output directory cannot be created
+    /// - File cannot be written to disk
+    /// 
+    /// # Examples
+    /// 
+    /// ```no_run
+    /// # use vsix::application::ApplicationService;
+    /// # #[tokio::main]
+    /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    /// let service = ApplicationService::new();
+    /// 
+    /// // Download extension to current directory
+    /// let path = service.download_extension("rust-lang.rust-analyzer", "./downloads", None).await?;
+    /// println!("Downloaded to: {}", path.display());
+    /// # Ok(())
+    /// # }
+    /// ```
     pub async fn download_extension(
         &self,
         extension_id: &str,
