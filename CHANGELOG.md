@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.2] - 2025-08-14
+
+### Added
+- Comprehensive crate-level documentation with architecture overview
+- Detailed API documentation for all public methods
+- Usage examples in documentation for common scenarios
+- Package metadata for better docs.rs presentation
+- Maintenance badge configuration
+
+### Changed
+- Enhanced documentation for ApplicationService with complete examples
+- Improved method documentation with parameters, returns, and error conditions
+- Added documentation links and homepage to Cargo.toml
+
+### Fixed
+- Documentation formatting consistency with proper whitespace handling
+
 ## [1.0.1] - 2025-08-14
 
 ### Added
@@ -89,5 +106,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved table display with fixed column widths and better alignment
 - Enhanced search result presentation with dynamic content arrangement
 
+[1.0.2]: https://github.com/beeltec/vsix/releases/tag/v1.0.2
 [1.0.1]: https://github.com/beeltec/vsix/releases/tag/v1.0.1
 [1.0.0]: https://github.com/beeltec/vsix/releases/tag/v1.0.0
