@@ -30,10 +30,10 @@ impl DisplayManager {
             .set_content_arrangement(ContentArrangement::Dynamic)
             .set_width(120)
             .set_header(vec![
-                "Name".bold().to_string(),
-                "Downloads".bold().to_string(),
-                "Publisher".bold().to_string(),
-                "ID".bold().to_string(),
+                "Name",
+                "Downloads",
+                "Publisher",
+                "ID",
             ]);
 
         for ext in &results.extensions {
