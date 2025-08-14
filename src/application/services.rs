@@ -1,10 +1,15 @@
+use crate::application::install_use_case::ImprovedInstallExtensionUseCase;
 use crate::application::use_cases::{InstallExtensionUseCase, SearchExtensionUseCase};
 use crate::domain::{DomainError, ExtensionRepository, InstallationRepository};
-use crate::infrastructure::{FileSystemRepository, MarketplaceClient};
+use crate::infrastructure::{
+    FileSystemRepository, MarketplaceClient, SystemInstallationDetector, SystemInstallationExecutor,
+};
 
 pub struct ApplicationService {
     marketplace_client: MarketplaceClient,
     file_system_repo: FileSystemRepository,
+    installation_detector: SystemInstallationDetector,
+    installation_executor: SystemInstallationExecutor,
 }
 
 impl Default for ApplicationService {
@@ -19,6 +24,8 @@ impl ApplicationService {
         Self {
             marketplace_client: MarketplaceClient::new(),
             file_system_repo: FileSystemRepository::new(),
+            installation_detector: SystemInstallationDetector::new(),
+            installation_executor: SystemInstallationExecutor::new(),
         }
     }
 
@@ -36,7 +43,25 @@ impl ApplicationService {
         use_case.execute(query, marketplace_url).await
     }
 
-    /// Installs an extension
+    /// Installs an extension using the legacy method (direct filesystem)
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the extension ID is invalid, extension not found, or installation fails
+    pub async fn install_extension_legacy(
+        &self,
+        extension_id: &str,
+        use_cursor: bool,
+        marketplace_url: Option<&str>,
+    ) -> Result<(), DomainError> {
+        let use_case =
+            InstallExtensionUseCase::new(&self.marketplace_client, &self.file_system_repo);
+        use_case
+            .execute(extension_id, use_cursor, marketplace_url)
+            .await
+    }
+
+    /// Installs an extension using the improved method (CLI when available)
     ///
     /// # Errors
     ///
@@ -47,8 +72,11 @@ impl ApplicationService {
         use_cursor: bool,
         marketplace_url: Option<&str>,
     ) -> Result<(), DomainError> {
-        let use_case =
-            InstallExtensionUseCase::new(&self.marketplace_client, &self.file_system_repo);
+        let use_case = ImprovedInstallExtensionUseCase::new(
+            &self.marketplace_client,
+            &self.installation_detector,
+            &self.installation_executor,
+        );
         use_case
             .execute(extension_id, use_cursor, marketplace_url)
             .await
