@@ -16,7 +16,7 @@ A command-line utility that downloads and installs .vsix extensions into Visual 
 - Search for extensions in the Visual Studio Code marketplace
 - Install extensions to Visual Studio Code or Cursor
 - Automatic system architecture detection
-- Beautiful table display for search results
+- Table display for search results
 - Support for custom marketplace URLs
 
 ## Platform Support
@@ -30,7 +30,6 @@ A command-line utility that downloads and installs .vsix extensions into Visual 
 ### Homebrew (macOS and Linux)
 
 ```bash
-# Coming soon - after first release
 brew tap beeltec/vsix
 brew install vsix
 ```
