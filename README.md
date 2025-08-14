@@ -142,22 +142,43 @@ cargo fix
 
 ```
 src/
-├── domain/           # Core business logic
-│   ├── entities.rs   # Extension entity
-│   ├── value_objects.rs # Architecture detection
-│   ├── repositories.rs  # Repository traits
-│   └── errors.rs     # Domain errors
-├── application/      # Use cases and services
-│   ├── use_cases.rs  # Search and install use cases
-│   └── services.rs   # Application service
-├── infrastructure/   # External implementations
-│   ├── marketplace_client.rs # VSCode marketplace API
-│   └── file_system.rs # File system operations
-├── presentation/     # User interface
-│   ├── cli.rs        # CLI argument parsing
-│   └── display.rs    # Output formatting
-└── main.rs          # Application entry point
+├── domain/                      # Core business logic and domain model
+│   ├── entities.rs              # Extension entity
+│   ├── errors.rs                # Domain-specific errors
+│   ├── installation_strategy.rs # Installation strategy pattern
+│   ├── repositories.rs          # Repository trait definitions
+│   ├── sort.rs                  # Sorting functionality
+│   └── value_objects.rs         # Architecture detection
+├── application/                 # Application layer - use cases
+│   ├── install_use_case.rs      # Improved installation use case
+│   ├── services.rs              # Application service facade
+│   └── use_cases.rs             # Search and legacy install use cases
+├── infrastructure/              # External service implementations
+│   ├── file_system.rs           # File system operations
+│   ├── installation_service.rs  # Installation detection and execution
+│   ├── marketplace_client.rs    # VSCode marketplace API client
+│   └── marketplace_tests.rs     # Integration tests for marketplace
+├── presentation/                # User interface layer
+│   ├── cli.rs                   # CLI argument parsing
+│   └── display.rs               # Output formatting and tables
+├── lib.rs                       # Library entry point
+└── main.rs                      # Application entry point
 ```
+
+### Architecture
+
+This project follows **Domain-Driven Design (DDD)** principles with a clean architecture:
+
+- **Domain Layer**: Contains business logic, entities, and domain services
+- **Application Layer**: Orchestrates use cases and coordinates domain objects
+- **Infrastructure Layer**: Implements external service integrations
+- **Presentation Layer**: Handles user interaction and display
+
+The architecture emphasizes:
+- **Separation of Concerns**: Each layer has a specific responsibility
+- **Dependency Inversion**: Domain and application layers don't depend on infrastructure
+- **SOLID Principles**: Single responsibility, open/closed, and interface segregation
+- **Test-Driven Development**: Comprehensive test coverage at all layers
 
 ## Contributing
 
