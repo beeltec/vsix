@@ -3,12 +3,11 @@
 [![Crates.io Version](https://img.shields.io/crates/v/vsix)](https://crates.io/crates/vsix)
 [![Crates.io Downloads](https://img.shields.io/crates/d/vsix)](https://crates.io/crates/vsix)
 [![License](https://img.shields.io/crates/l/vsix)](https://github.com/beeltec/vsix/blob/main/LICENSE)
-[![Build Status](https://img.shields.io/github/actions/workflow/status/beeltec/vsix/release.yml?branch=main&label=release)](https://github.com/beeltec/vsix/actions/workflows/release.yml)
-[![CI Status](https://img.shields.io/github/actions/workflow/status/beeltec/vsix/ci.yml?branch=main&label=ci)](https://github.com/beeltec/vsix/actions/workflows/ci.yml)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/beeltec/vsix/release.yml)](https://github.com/beeltec/vsix/actions/workflows/release.yml)
+[![CI Status](https://img.shields.io/github/actions/workflow/status/beeltec/vsix/ci.yml)](https://github.com/beeltec/vsix/actions/workflows/ci.yml)
 [![GitHub Stars](https://img.shields.io/github/stars/beeltec/vsix?style=social)](https://github.com/beeltec/vsix)
 [![Rust Version](https://img.shields.io/badge/rust-1.89%2B-blue)](https://www.rust-lang.org)
 [![docs.rs](https://img.shields.io/docsrs/vsix)](https://docs.rs/vsix)
-[![Dependencies](https://img.shields.io/librariesio/release/cargo/vsix)](https://libraries.io/cargo/vsix)
 
 A command-line utility that downloads and installs .vsix extensions into Visual Studio Code and Cursor
 
