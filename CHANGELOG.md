@@ -7,6 +7,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.1] - 2025-08-14
+
+### Added
+- Automatic CLI detection for VSCode and Cursor commands in PATH
+- Improved installation strategy with CLI preference over filesystem extraction
+- Comprehensive GitHub shields/badges in README
+- Python script for robust Homebrew formula updates
+- Verification step in release workflow
+
+### Changed
+- Refactored installation logic following Domain-Driven Design (DDD) principles
+- Improved code organization using SOLID principles and Clean Code practices
+- Enhanced error handling in release workflow
+- Better separation of concerns with new installation strategy pattern
+
+### Fixed
+- Fixed Homebrew formula update in release workflow
+- Fixed temporary file cleanup in GitHub Actions
+- Fixed SHA256 checksum updates for all platforms
+- Resolved untracked files issue in release workflow
+
+### Technical Improvements
+- Implemented InstallationDetector and InstallationExecutor traits
+- Added SystemInstallationDetector for PATH command detection
+- Created ImprovedInstallExtensionUseCase with better architecture
+- Added comprehensive unit tests following TDD approach
+- Updated to which crate v7.0 for command detection
+
 ## [1.0.0] - 2025-08-13
 
 ### Added
@@ -61,4 +89,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Improved table display with fixed column widths and better alignment
 - Enhanced search result presentation with dynamic content arrangement
 
+[1.0.1]: https://github.com/beeltec/vsix/releases/tag/v1.0.1
 [1.0.0]: https://github.com/beeltec/vsix/releases/tag/v1.0.0
