@@ -2,25 +2,25 @@ class Vsix < Formula
   desc "Download and install .vsix extensions into Visual Studio Code and Cursor"
   homepage "https://github.com/beeltec/vsix"
   license "MIT"
-  version "1.0.0"
+  version "1.0.1"
   
   on_macos do
     if Hardware::CPU.arm?
-      url "https://github.com/beeltec/vsix/releases/download/v1.0.0/vsix-aarch64-apple-darwin.tar.gz"
-      sha256 "69088c67cdf48c49772b85d31032cf7d784aa293d6f0231e63eb83e33776c0ba"
+      url "https://github.com/beeltec/vsix/releases/download/v1.0.1/vsix-aarch64-apple-darwin.tar.gz"
+      sha256 "6e07ddc7aac7c1e7d12ba86f04fcd024a13087d3bb4173287a47c3a5c969ef92"
     else
-      url "https://github.com/beeltec/vsix/releases/download/v1.0.0/vsix-x86_64-apple-darwin.tar.gz"
-      sha256 "5a0620836a6d86b5e362c0db5a90b6d9e923409ec8ce45e81a377ac1b08d3cf4"
+      url "https://github.com/beeltec/vsix/releases/download/v1.0.1/vsix-x86_64-apple-darwin.tar.gz"
+      sha256 "d9e7251e62843032e197076b5f787607d4488e633b7460e7521429b66232df60"
     end
   end
 
   on_linux do
     if Hardware::CPU.arm?
-      url "https://github.com/beeltec/vsix/releases/download/v1.0.0/vsix-aarch64-linux.tar.gz"
+      url "https://github.com/beeltec/vsix/releases/download/v1.0.1/vsix-aarch64-linux.tar.gz"
       sha256 "9bcef7247839c54d5e547b2483503b1e5ef52f9989c6d930eb8dd54f45a7a292_ARM"
     else
-      url "https://github.com/beeltec/vsix/releases/download/v1.0.0/vsix-x86_64-linux.tar.gz"
-      sha256 "9bcef7247839c54d5e547b2483503b1e5ef52f9989c6d930eb8dd54f45a7a292_X86"
+      url "https://github.com/beeltec/vsix/releases/download/v1.0.1/vsix-x86_64-linux.tar.gz"
+      sha256 "6e8108518b4132c65c74babfd72742fb1ebebd383afd2281407a73d2229a3ee2"
     end
   end
 
