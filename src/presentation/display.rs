@@ -29,12 +29,7 @@ impl DisplayManager {
             .apply_modifier(UTF8_ROUND_CORNERS)
             .set_content_arrangement(ContentArrangement::Dynamic)
             .set_width(120)
-            .set_header(vec![
-                "Name",
-                "Downloads",
-                "Publisher",
-                "ID",
-            ]);
+            .set_header(vec!["Name", "Downloads", "Publisher", "ID"]);
 
         for ext in &results.extensions {
             table.add_row(vec![
